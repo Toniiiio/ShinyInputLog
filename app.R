@@ -1,22 +1,4 @@
-# Related to this question on stackoverflow: http://stackoverflow.com/questions/41718948/analysing-shiny-server-log-to-create-statistics-on-usage
-# 
-# 
-# A small overview on the work
-# 
-# Challenge 1 - Track the inputs:
-# First, I thought looping through the inputs and add a listener. Then i found Shiny already has something similar:
-# "shiny:inputchanged". It looked like a quick win, as you could collect the changes in JS and then send them to R.
-# How to send them to R? Right: "Shiny.onInputChange". Calling that within "shiny:inputchanged" sounds strange and 
-# well suprise, that didnt work.
-# 
-# Challenge 2 - Send results back to R
-# So I thought about saving results in a variable and calling "shiny:inputchanged" outside "shiny:inputchanged" as soon
-# as there was a change in that variable. JS does not really have a variable change listener, but you can find a workaround
-# HERE.
-# 
-# Note:JS part could use some refactoring, I just taught myself a bit JS for Shiny purposes only. 
-# 
-
+# Related to this stackoverflow question: http://stackoverflow.com/questions/41718948/analysing-shiny-server-log-to-create-statistics-on-usage
 
 addListener <- '
   function checkVariable() {
@@ -68,11 +50,11 @@ addListener <- '
 
 if(!file.exists("log.csv")){
   log <- data.frame(inputVal = "", inputId = "", UserIp = "", time = "")
-  write.table(log, "log.csv", sep = ";", append = TRUE,  row.names = FALSE, col.names = TRUE)
+  write.table(log, "log/log.csv", sep = ";", append = TRUE,  row.names = FALSE, col.names = TRUE)
 }
 
 
-setwd("C:/Users/d91115/Dropbox/Application/Stackoverflow")
+# 
 
 library(shiny)
 
@@ -125,8 +107,10 @@ server <- function(input, output, session) {
     input$logger
     if(!is.null(input$logger)){
       inputLog <- c(input$logger, as.character(Sys.time()))
+      # some input give double values - shorten to one string to fit it in the data table
       if(length(inputLog) == 5) inputLog <- c(paste(input$logger[1:2], collapse = "-"), input$logger[3:4], as.character(Sys.time()))
-      print(as.data.frame(rbind(inputLog)))
+      # wait till file was updated
+      Sys.sleep(0.3)
       write.table(as.data.frame(rbind(inputLog)), "log.csv", sep = ";", append = TRUE,  row.names = FALSE, col.names = FALSE)
     }
   })
@@ -152,10 +136,11 @@ server <- function(input, output, session) {
     input$logger
     data <- as.data.frame(read.table("log.csv", sep = ";", header = TRUE))
     return(data[dim(data)[1]:1, ])
-  })
+  }, options = list(lengthMenu = c(10, 20, 50), pageLength = 10))
 }
 
-runApp(shinyApp(ui, server), launch.browser = TRUE, display.mode = "showcase")
+shinyApp(ui, server)
+#runApp(shinyApp(ui, server), launch.browser = TRUE, display.mode = "showcase")
 
 
 
