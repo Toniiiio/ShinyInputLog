@@ -1,4 +1,4 @@
-# Related to this stackoverflow question: http://stackoverflow.com/questions/41718948/analysing-shiny-server-log-to-create-statistics-on-usage
+# How to log input changes in shiny apps
 
 addListener <- '
   function checkVariable() {
