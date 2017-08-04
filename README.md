@@ -1,5 +1,5 @@
 # ShinyInputLog
 
-How to log input changes in shiny apps.
-Example:
-http://www.big-data-scientist.de/shiny/rstudio/sample-apps/ShinyInputLog/
+How to log input changes in shiny apps dynamically. All inputs are tracked without having to specify which inputs
+should be logged.
+
